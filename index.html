@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#0b1118">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tanken">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Bayazit Tanken</title>
 <style>
   :root{
@@ -344,7 +347,7 @@
       list.innerHTML = '<div class="msg">'+t+'</div>'; return;
     }
     const nOpen = arr.filter(s=>s.isOpen).length;
-    $("count").textContent = arr.length+" Tankstellen im Umkreis von "+state.radius+" km · "+nOpen+" geöffnet";
+    $("count").textContent = arr.length+(arr.length===1?" Tankstelle":" Tankstellen")+" im Umkreis von "+state.radius+" km · "+nOpen+" geöffnet";
 
     list.innerHTML = arr.map((s,i)=>{
       const p = s[f], has = hasP(s,f);
@@ -406,6 +409,7 @@
   setInterval(()=>{ if(document.visibilityState==="visible") load(false); }, 5*60*1000+2000);
   document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") load(false); });
 
+  if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
   initControls();
   start(false);
 })();
