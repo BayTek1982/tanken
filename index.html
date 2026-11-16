@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f1720">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tanken">
+<title>Bayazit Tanken</title>
+<style>
+  :root{
+    --bg:#0f1720; --card:#17212c; --card2:#1e2a37; --text:#e8eef4; --muted:#8a9bab;
+    --accent:#22c55e; --warn:#f59e0b; --bad:#ef4444; --line:#263445; --blue:#3b82f6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+  header{position:sticky;top:0;z-index:5;background:rgba(15,23,32,.96);backdrop-filter:blur(8px);padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  h1{font-size:20px;margin:0;display:flex;align-items:center;gap:8px}
+  h1 span{font-size:24px}
+  .iconbtn{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 11px;font-size:16px;cursor:pointer}
+  .loc{font-size:13px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin-top:10px;border:1px solid var(--line)}
+  .seg button{flex:1;background:none;border:0;color:var(--muted);padding:8px 4px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer}
+  .seg button.on{background:var(--blue);color:#fff}
+  .row{display:flex;gap:8px;margin-top:8px}
+  select,input{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:14px;width:100%}
+  main{padding:12px 14px 40px;max-width:700px;margin:0 auto}
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .sbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+  .sbox b{display:block;font-size:18px;margin-top:2px}
+  .sbox small{color:var(--muted);font-size:11px}
+  .st{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;gap:12px;align-items:center}
+  .st.best{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .st.closed{opacity:.5}
+  .price{min-width:92px;text-align:center;border-radius:10px;padding:8px 4px;font-weight:800;font-size:24px;font-variant-numeric:tabular-nums}
+  .price sup{font-size:13px;vertical-align:top;position:relative;top:2px}
+  .p-good{background:rgba(34,197,94,.15);color:#4ade80}
+  .p-mid{background:rgba(245,158,11,.15);color:#fbbf24}
+  .p-bad{background:rgba(239,68,68,.15);color:#f87171}
+  .p-none{background:var(--card2);color:var(--muted);font-size:14px}
+  .info{flex:1;min-width:0}
+  .name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .addr{color:var(--muted);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .tag{font-size:11px;padding:3px 7px;border-radius:6px;background:var(--card2);color:var(--muted)}
+  .tag.open{color:#4ade80}.tag.zu{color:#f87171}.tag.best{background:var(--accent);color:#04210f;font-weight:700}
+  .others{font-size:12px;color:var(--muted);margin-top:5px}
+  .nav{display:flex;flex-direction:column;gap:6px}
+  .nav a,.nav button{background:var(--card2);border:1px solid var(--line);color:var(--text);text-decoration:none;border-radius:10px;padding:8px 10px;font-size:18px;text-align:center;cursor:pointer}
+  .nav button.fav{color:var(--warn)}
+  .msg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--muted);line-height:1.5}
+  .msg b{color:var(--text)}
+  .btn{display:inline-block;background:var(--blue);color:#fff;border:0;border-radius:10px;padding:11px 16px;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px;text-decoration:none}
+  .btn.grey{background:var(--card2);border:1px solid var(--line)}
+  footer{color:var(--muted);font-size:11px;text-align:center;margin-top:18px;line-height:1.6}
+  footer a{color:var(--muted)}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:20}
+  .overlay.show{display:flex}
+  .sheet{background:var(--card);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:18px 16px 28px;border-top:1px solid var(--line)}
+  .sheet h2{margin:0 0 10px;font-size:18px}
+  .sheet p{color:var(--muted);font-size:13px;line-height:1.5}
+  .sheet label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px}
+  .sheet a{color:#60a5fa}
+  .spin{display:inline-block;width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:r 0.8s linear infinite}
+  @keyframes r{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1><span>⛽</span>Bayazit Tanken</h1>
+    <div style="display:flex;gap:6px">
+      <button class="iconbtn" id="btnRefresh" title="Aktualisieren">⟳</button>
+      <button class="iconbtn" id="btnSettings" title="Einstellungen">⚙️</button>
+    </div>
+  </div>
+  <div class="loc" id="locText">📍 Standort wird ermittelt …</div>
+  <div class="seg" id="fuelSeg">
+    <button data-f="diesel">Diesel</button>
+    <button data-f="e5">Super E5</button>
+    <button data-f="e10">Super E10</button>
+  </div>
+  <div class="row">
+    <select id="radius">
+      <option value="2">Umkreis 2 km</option>
+      <option value="5">Umkreis 5 km</option>
+      <option value="10">Umkreis 10 km</option>
+      <option value="15">Umkreis 15 km</option>
+      <option value="25">Umkreis 25 km</option>
+    </select>
+    <select id="sort">
+      <option value="price">Nach Preis</option>
+      <option value="dist">Nach Entfernung</option>
+    </select>
+    <select id="filter">
+      <option value="open">Nur geöffnet</option>
+      <option value="all">Alle</option>
+      <option value="fav">Favoriten</option>
+    </select>
+  </div>
+</header>
+
+<main>
+  <div id="summary" class="summary" style="display:none"></div>
+  <div id="list"></div>
+  <footer>
+    Preise: Markttransparenzstelle für Kraftstoffe (MTS-K) über
+    <a href="https://creativecommons.tankerkoenig.de" target="_blank" rel="noopener">Tankerkönig</a> (CC BY 4.0).<br>
+    Alle Angaben ohne Gewähr. <span id="stamp"></span>
+  </footer>
+</main>
+
+<div class="overlay" id="ov">
+  <div class="sheet">
+    <h2>⚙️ Einstellungen</h2>
+    <label for="keyIn">Tankerkönig-Schlüssel (API-Key)</label>
+    <input id="keyIn" placeholder="z. B. 12345678-abcd-…" autocomplete="off">
+    <p>Den kostenlosen Schlüssel bekommst du hier:
+      <a href="https://onboarding.tankerkoenig.de/" target="_blank" rel="noopener">onboarding.tankerkoenig.de</a>.
+      Er wird nur auf diesem Gerät gespeichert.</p>
+    <label for="placeIn">Ort oder PLZ statt GPS (leer = GPS)</label>
+    <input id="placeIn" placeholder="z. B. 84051 Essenbach">
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn" id="saveBtn">Speichern</button>
+      <button class="btn grey" id="gpsBtn">📍 GPS nutzen</button>
+      <button class="btn grey" id="closeBtn">Schließen</button>
+    </div>
+    <p id="setMsg"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const API = "https://creativecommons.tankerkoenig.de/json/list.php";
+  const GEO = "https://nominatim.openstreetmap.org/search";
+  const DEFAULT = {lat:48.7176, lng:12.2058, name:"Ergoldsbach (Standard)"};
+  const FUEL_NAME = {diesel:"Diesel", e5:"Super E5", e10:"Super E10"};
+
+  const store = {
+    get(k,d){ try{ const v=localStorage.getItem("tanken_"+k); return v===null?d:JSON.parse(v);}catch(e){return d;} },
+    set(k,v){ try{ localStorage.setItem("tanken_"+k, JSON.stringify(v)); }catch(e){} }
+  };
+
+  const state = {
+    key: store.get("key",""),
+    fuel: store.get("fuel","diesel"),
+    radius: store.get("radius","10"),
+    sort: store.get("sort","price"),
+    filter: store.get("filter","open"),
+    place: store.get("place",""),
+    favs: store.get("favs",[]),
+    pos: null, stations: [], lastLoad: 0
+  };
+
+  const $ = id => document.getElementById(id);
+  const list = $("list");
+
+  // ---------- Bedienelemente ----------
+  function initControls(){
+    document.querySelectorAll("#fuelSeg button").forEach(b=>{
+      b.classList.toggle("on", b.dataset.f===state.fuel);
+      b.onclick = ()=>{ state.fuel=b.dataset.f; store.set("fuel",state.fuel);
+        document.querySelectorAll("#fuelSeg button").forEach(x=>x.classList.toggle("on",x===b)); render(); };
+    });
+    $("radius").value = state.radius;
+    $("sort").value = state.sort;
+    $("filter").value = state.filter;
+    $("radius").onchange = e=>{ state.radius=e.target.value; store.set("radius",state.radius); load(true); };
+    $("sort").onchange = e=>{ state.sort=e.target.value; store.set("sort",state.sort); render(); };
+    $("filter").onchange = e=>{ state.filter=e.target.value; store.set("filter",state.filter); render(); };
+    $("btnRefresh").onclick = ()=> start(true);
+    $("btnSettings").onclick = openSettings;
+    $("closeBtn").onclick = ()=> $("ov").classList.remove("show");
+    $("saveBtn").onclick = saveSettings;
+    $("gpsBtn").onclick = ()=>{ $("placeIn").value=""; saveSettings(); };
+    $("ov").onclick = e=>{ if(e.target.id==="ov") $("ov").classList.remove("show"); };
+  }
+
+  function openSettings(){
+    $("keyIn").value = state.key;
+    $("placeIn").value = state.place;
+    $("setMsg").textContent = "";
+    $("ov").classList.add("show");
+  }
+  function saveSettings(){
+    state.key = $("keyIn").value.trim();
+    state.place = $("placeIn").value.trim();
+    store.set("key",state.key); store.set("place",state.place);
+    $("ov").classList.remove("show");
+    start(true);
+  }
+
+  // ---------- Standort ----------
+  function getGPS(){
+    return new Promise((res,rej)=>{
+      if(!navigator.geolocation) return rej(new Error("kein GPS"));
+      navigator.geolocation.getCurrentPosition(
+        p=>res({lat:p.coords.latitude, lng:p.coords.longitude, name:"Mein Standort"}),
+        e=>rej(e), {enableHighAccuracy:false, timeout:12000, maximumAge:120000});
+    });
+  }
+  async function geocode(q){
+    const url = GEO+"?format=json&limit=1&countrycodes=de&q="+encodeURIComponent(q);
+    const r = await fetch(url, {headers:{"Accept-Language":"de"}});
+    const j = await r.json();
+    if(!j.length) throw new Error("Ort nicht gefunden");
+    return {lat:+j[0].lat, lng:+j[0].lon, name:j[0].display_name.split(",").slice(0,2).join(",")};
+  }
+  async function locate(){
+    if(state.place){
+      try{ return await geocode(state.place); }
+      catch(e){ showMsg("Der Ort <b>"+esc(state.place)+"</b> wurde nicht gefunden. Bitte in den Einstellungen prüfen."); throw e; }
+    }
+    try{ return await getGPS(); }
+    catch(e){ return Object.assign({}, DEFAULT, {fallback:true}); }
+  }
+
+  // ---------- Daten laden ----------
+  async function start(force){
+    if(!state.key){ showWelcome(); return; }
+    showLoading("Standort wird ermittelt …");
+    try{ state.pos = await locate(); }catch(e){ return; }
+    $("locText").textContent = "📍 " + state.pos.name + (state.pos.fallback ? " – GPS nicht erlaubt" : "");
+    load(force);
+  }
+
+  async function load(force){
+    if(!state.key || !state.pos) return;
+    // Tankerkönig bittet: nicht öfter als alle 5 Minuten abfragen
+    if(!force && Date.now()-state.lastLoad < 5*60*1000 && state.stations.length){ render(); return; }
+    showLoading("Preise werden geladen …");
+    const url = API+"?lat="+state.pos.lat.toFixed(5)+"&lng="+state.pos.lng.toFixed(5)+
+      "&rad="+state.radius+"&sort=dist&type=all&apikey="+encodeURIComponent(state.key);
+    try{
+      const r = await fetch(url);
+      const j = await r.json();
+      if(!j.ok){
+        showMsg("Fehler von Tankerkönig: <b>"+esc(j.message||"unbekannt")+"</b><br>Ist der Schlüssel richtig?",
+          '<button class="btn" onclick="document.getElementById(\'btnSettings\').click()">Einstellungen öffnen</button>');
+        return;
+      }
+      state.stations = j.stations || [];
+      state.lastLoad = Date.now();
+      $("stamp").textContent = "Stand: " + new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}) + " Uhr";
+      render();
+    }catch(e){
+      showMsg("Die Preise konnten nicht geladen werden. Bitte Internetverbindung prüfen.",
+        '<button class="btn" id="retry">Nochmal versuchen</button>');
+      const b=$("retry"); if(b) b.onclick=()=>load(true);
+    }
+  }
+
+  // ---------- Anzeige ----------
+  function fmtPrice(p){
+    if(typeof p!=="number" || p<=0) return '<span>–</span>';
+    const s = p.toFixed(3).replace(".",",");
+    return s.slice(0,-1)+"<sup>"+s.slice(-1)+"</sup>";
+  }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function title(s){ return String(s||"").toLowerCase().replace(/(^|[\s\-\/])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase()); }
+
+  function render(){
+    const f = state.fuel;
+    let arr = state.stations.slice();
+    if(state.filter==="open") arr = arr.filter(s=>s.isOpen);
+    if(state.filter==="fav") arr = arr.filter(s=>state.favs.includes(s.id));
+
+    const priced = arr.filter(s=>typeof s[f]==="number" && s[f]>0);
+    if(state.sort==="price"){
+      arr.sort((a,b)=>{
+        const pa=(typeof a[f]==="number"&&a[f]>0)?a[f]:99, pb=(typeof b[f]==="number"&&b[f]>0)?b[f]:99;
+        return pa-pb || a.dist-b.dist;
+      });
+    } else arr.sort((a,b)=>a.dist-b.dist);
+
+    const prices = priced.map(s=>s[f]);
+    const min = prices.length?Math.min(...prices):0, max = prices.length?Math.max(...prices):0;
+    const avg = prices.length?prices.reduce((a,b)=>a+b,0)/prices.length:0;
+
+    const sum = $("summary");
+    if(prices.length){
+      sum.style.display="grid";
+      sum.innerHTML =
+        '<div class="sbox"><small>Günstigster</small><b style="color:#4ade80">'+min.toFixed(3).replace(".",",")+' €</b></div>'+
+        '<div class="sbox"><small>Durchschnitt</small><b>'+avg.toFixed(3).replace(".",",")+' €</b></div>'+
+        '<div class="sbox"><small>Teuerster</small><b style="color:#f87171">'+max.toFixed(3).replace(".",",")+' €</b></div>';
+    } else sum.style.display="none";
+
+    if(!arr.length){
+      const t = state.filter==="fav" ? "Noch keine Favoriten. Tippe bei einer Tankstelle auf den ☆ Stern."
+              : "Keine Tankstelle im Umkreis von "+state.radius+" km gefunden. Vergrößere den Umkreis.";
+      list.innerHTML = '<div class="msg">'+t+'</div>'; return;
+    }
+
+    list.innerHTML = arr.map(s=>{
+      const p = s[f];
+      const has = typeof p==="number" && p>0;
+      let cls="p-none";
+      if(has){ const span=max-min; const r= span>0?(p-min)/span:0; cls = r<0.34?"p-good":r<0.67?"p-mid":"p-bad"; }
+      const best = has && p===min && s.isOpen;
+      const fav = state.favs.includes(s.id);
+      const others = ["diesel","e5","e10"].filter(x=>x!==f)
+        .map(x=>FUEL_NAME[x]+": "+(typeof s[x]==="number"&&s[x]>0? s[x].toFixed(3).replace(".",",")+" €":"–")).join(" · ");
+      const nav = "https://www.google.com/maps/dir/?api=1&destination="+s.lat+","+s.lng;
+      const brand = s.brand ? title(s.brand) : title(s.name);
+      return '<div class="st'+(best?" best":"")+(s.isOpen?"":" closed")+'">'+
+        '<div class="price '+cls+'">'+fmtPrice(p)+'</div>'+
+        '<div class="info">'+
+          '<div class="name">'+esc(brand)+'</div>'+
+          '<div class="addr">'+esc(title(s.street))+' '+esc(s.houseNumber||"")+', '+esc(title(s.place))+'</div>'+
+          '<div class="meta">'+
+            (best?'<span class="tag best">Am günstigsten</span>':'')+
+            '<span class="tag">'+String(s.dist).replace(".",",")+' km</span>'+
+            '<span class="tag '+(s.isOpen?"open":"zu")+'">'+(s.isOpen?"geöffnet":"geschlossen")+'</span>'+
+          '</div>'+
+          '<div class="others">'+others+'</div>'+
+        '</div>'+
+        '<div class="nav">'+
+          '<a href="'+nav+'" target="_blank" rel="noopener" title="Route">🧭</a>'+
+          '<button class="fav" data-id="'+esc(s.id)+'" title="Favorit">'+(fav?"★":"☆")+'</button>'+
+        '</div>'+
+      '</div>';
+    }).join("");
+
+    list.querySelectorAll("button.fav").forEach(b=>{
+      b.onclick = ()=>{
+        const id=b.dataset.id; const i=state.favs.indexOf(id);
+        if(i>=0) state.favs.splice(i,1); else state.favs.push(id);
+        store.set("favs",state.favs); render();
+      };
+    });
+  }
+
+  function showLoading(t){ list.innerHTML='<div class="msg"><div class="spin"></div><br>'+t+'</div>'; }
+  function showMsg(html, extra){ $("summary").style.display="none"; list.innerHTML='<div class="msg">'+html+(extra?"<br>"+extra:"")+'</div>'; }
+  function showWelcome(){
+    $("locText").textContent = "📍 Noch nicht eingerichtet";
+    showMsg("<b>Willkommen!</b><br>Für die Live-Preise brauchst du einmalig einen kostenlosen Schlüssel von Tankerkönig.<br>"+
+      "1. Schlüssel holen<br>2. Hier auf ⚙️ tippen und einfügen",
+      '<a class="btn" href="https://onboarding.tankerkoenig.de/" target="_blank" rel="noopener">Schlüssel holen</a> '+
+      '<button class="btn grey" id="w2">Schlüssel eingeben</button>');
+    const b=$("w2"); if(b) b.onclick=openSettings;
+  }
+
+  // Automatisch alle 5 Minuten aktualisieren, wenn die Seite offen ist
+  setInterval(()=>{ if(document.visibilityState==="visible") load(false); }, 5*60*1000+2000);
+  document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") load(false); });
+
+  initControls();
+  start(false);
+})();
+</script>
+</body>
+</html>
