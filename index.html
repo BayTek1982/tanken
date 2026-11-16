@@ -10,15 +10,28 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Bayazit Tanken</title>
+<script>
+  (function(){var t=null;try{t=JSON.parse(localStorage.getItem("tanken_theme"));}catch(e){}
+   if(!t) t=(window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark";
+   if(t==="light") document.documentElement.classList.add("light");})();
+</script>
 <style>
   :root{
     --bg:#0b1118; --card:#131c26; --card2:#1a2531; --text:#e9eef4; --muted:#8696a7;
     --line:rgba(255,255,255,.07); --accent:#22c55e; --blue:#3b82f6; --blue2:#6366f1;
+    --head:rgba(11,17,24,.82); --cardEnd:#111922; --good:#4ade80; --mid:#fbbf24; --bad:#f87171; --glow:rgba(59,130,246,.14);
   }
+  html.light{
+    --bg:#f3f6fa; --card:#ffffff; --card2:#eef2f7; --text:#152030; --muted:#5f6f82;
+    --line:rgba(15,30,50,.09); --head:rgba(243,246,250,.85); --cardEnd:#fbfcfe;
+    --good:#15803d; --mid:#b45309; --bad:#dc2626; --glow:rgba(59,130,246,.10);
+  }
+  html.light .st,html.light .sbox,html.light .msg{box-shadow:0 1px 3px rgba(15,30,50,.06)}
+  html.light .tag.best{color:#fff;background:#16a34a}
   *{box-sizing:border-box}
-  body{margin:0;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;
-    background:radial-gradient(1200px 500px at 50% -200px, rgba(59,130,246,.14), transparent 70%), var(--bg);min-height:100vh}
-  header{position:sticky;top:0;z-index:5;background:rgba(11,17,24,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:14px 14px 12px;border-bottom:1px solid var(--line)}
+  body{margin:0;transition:background-color .3s,color .3s;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;
+    background:radial-gradient(1200px 500px at 50% -200px, var(--glow), transparent 70%), var(--bg);min-height:100vh}
+  header{position:sticky;top:0;z-index:5;background:var(--head);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:14px 14px 12px;border-bottom:1px solid var(--line)}
   .wrap{max-width:700px;margin:0 auto}
   .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .brand{display:flex;align-items:center;gap:10px}
@@ -41,7 +54,7 @@
   .sbox b{display:block;font-size:18px;margin-top:3px;font-variant-numeric:tabular-nums}
   .sbox small{color:var(--muted);font-size:11px;letter-spacing:.3px}
   .count{color:var(--muted);font-size:12px;margin:0 2px 10px}
-  .st{background:linear-gradient(180deg,var(--card),#111922);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;display:flex;gap:12px;align-items:center;
+  .st{background:linear-gradient(180deg,var(--card),var(--cardEnd));border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;display:flex;gap:12px;align-items:center;
     animation:fade .35s ease both}
   .st.best{border-color:rgba(34,197,94,.55);box-shadow:0 0 0 1px rgba(34,197,94,.25) inset,0 6px 20px rgba(34,197,94,.08)}
   .st.closed{opacity:.45}
@@ -50,22 +63,22 @@
   @keyframes fadeC{from{opacity:0}to{opacity:.45}}
   .price{min-width:94px;text-align:center;border-radius:12px;padding:9px 4px;font-weight:800;font-size:25px;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
   .price sup{font-size:13px;vertical-align:top;position:relative;top:3px;margin-left:1px}
-  .p-good{background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.08));color:#4ade80}
-  .p-mid{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.08));color:#fbbf24}
-  .p-bad{background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.08));color:#f87171}
+  .p-good{background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.08));color:var(--good)}
+  .p-mid{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.08));color:var(--mid)}
+  .p-bad{background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.08));color:var(--bad)}
   .p-none{background:var(--card2);color:var(--muted);font-size:15px}
   .info{flex:1;min-width:0}
   .name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .addr{color:var(--muted);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
   .tag{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--muted)}
-  .tag.open{color:#4ade80;background:rgba(34,197,94,.1)}.tag.zu{color:#f87171;background:rgba(239,68,68,.1)}
+  .tag.open{color:var(--good);background:rgba(34,197,94,.1)}.tag.zu{color:var(--bad);background:rgba(239,68,68,.1)}
   .tag.best{background:var(--accent);color:#04210f;font-weight:700}
-  .tag.diff{color:#fbbf24}
+  .tag.diff{color:var(--mid)}
   .others{font-size:12px;color:var(--muted);margin-top:6px}
   .nav{display:flex;flex-direction:column;gap:6px}
   .nav a,.nav button{background:var(--card2);border:1px solid var(--line);color:var(--text);text-decoration:none;border-radius:11px;width:42px;height:40px;display:grid;place-items:center;font-size:17px;cursor:pointer}
-  .nav button.fav{color:#fbbf24}
+  .nav button.fav{color:var(--mid)}
   .msg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;color:var(--muted);line-height:1.55}
   .msg b{color:var(--text)}
   .bar{height:4px;background:var(--card2);border-radius:4px;overflow:hidden;margin:12px auto 0;max-width:220px}
@@ -98,6 +111,7 @@
       </div>
     </div>
     <div style="display:flex;gap:6px">
+      <button class="iconbtn" id="btnTheme" title="Hell / Dunkel">☀️</button>
       <button class="iconbtn" id="btnRefresh" title="Aktualisieren">⟳</button>
       <button class="iconbtn" id="btnSettings" title="Einstellungen">⚙️</button>
     </div>
@@ -194,11 +208,18 @@
     $("sort").onchange = e=>{ state.sort=e.target.value; store.set("sort",state.sort); render(); };
     $("filter").onchange = e=>{ state.filter=e.target.value; store.set("filter",state.filter); render(); };
     $("btnRefresh").onclick = ()=> start(true);
+    applyTheme(document.documentElement.classList.contains("light")?"light":"dark");
+    $("btnTheme").onclick = ()=>{ const t=document.documentElement.classList.contains("light")?"dark":"light"; store.set("theme",t); applyTheme(t); };
     $("btnSettings").onclick = openSettings;
     $("closeBtn").onclick = ()=> $("ov").classList.remove("show");
     $("saveBtn").onclick = saveSettings;
     $("gpsBtn").onclick = ()=>{ $("placeIn").value=""; saveSettings(); };
     $("ov").onclick = e=>{ if(e.target.id==="ov") $("ov").classList.remove("show"); };
+  }
+  function applyTheme(t){
+    document.documentElement.classList.toggle("light", t==="light");
+    $("btnTheme").textContent = t==="light" ? "🌙" : "☀️";
+    const m=document.querySelector('meta[name="theme-color"]'); if(m) m.content = t==="light" ? "#f3f6fa" : "#0b1118";
   }
   function openSettings(){ $("keyIn").value=state.key; $("placeIn").value=state.place; $("ov").classList.add("show"); }
   function saveSettings(){
@@ -335,9 +356,9 @@
     if(prices.length){
       sum.style.display="grid";
       sum.innerHTML =
-        '<div class="sbox"><small>GÜNSTIGSTER</small><b style="color:#4ade80">'+eur(min)+'</b></div>'+
+        '<div class="sbox"><small>GÜNSTIGSTER</small><b style="color:var(--good)">'+eur(min)+'</b></div>'+
         '<div class="sbox"><small>DURCHSCHNITT</small><b>'+eur(avg)+'</b></div>'+
-        '<div class="sbox"><small>TEUERSTER</small><b style="color:#f87171">'+eur(max)+'</b></div>';
+        '<div class="sbox"><small>TEUERSTER</small><b style="color:var(--bad)">'+eur(max)+'</b></div>';
     } else sum.style.display="none";
 
     if(!arr.length){
